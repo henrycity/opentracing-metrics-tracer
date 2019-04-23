@@ -5,7 +5,7 @@ const Prometheus = require('prom-client')
 const { Tags } = require('opentracing')
 const Span = require('../tracer/Span')
 
-const DURATION_HISTOGRAM_BUCKETS = [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
+let DURATION_HISTOGRAM_BUCKETS = [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
 const METRICS_NAME_OPERATION_DURATION_SECONDS = 'operation_duration_seconds'
 const METRICS_NAME_HTTP_REQUEST_HANDLER_DURATION_SECONDS = 'http_request_handler_duration_seconds'
 const LABEL_PARENT_SERVICE_UNKNOWN = 'unknown'
@@ -33,10 +33,13 @@ class PrometheusReporter {
   * @param {Object} [options.ignoreTags={}]
   * @returns {PrometheusReporter}
   */
-  constructor ({ ignoreTags = {} } = {}) {
+  constructor ({ ignoreTags = {}, durationHistogramBuckets } = {}) {
     this._registry = new Prometheus.Registry()
     this._options = {
       ignoreTags
+    }
+    if (durationHistogramBuckets) {
+      DURATION_HISTOGRAM_BUCKETS = durationHistogramBuckets;
     }
 
     // Initialize metrics
